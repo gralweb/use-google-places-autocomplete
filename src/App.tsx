@@ -15,33 +15,6 @@ function App() {
     console.error("Error:", error);
   };
 
-  const apiKey = import.meta.env.VITE_GOOGLE_MAPS_API_KEY;
-
-  if (!apiKey) {
-    return (
-      <div className="app">
-        <div className="container">
-          <h1>⚠️ API Key Required</h1>
-          <p>
-            Please create a <code>.env</code> file with your Google Maps API
-            key:
-          </p>
-          <pre>VITE_GOOGLE_MAPS_API_KEY=your_api_key_here</pre>
-          <p>
-            Get your API key from
-            <a
-              href="https://console.cloud.google.com/google/maps-apis"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              Google Cloud Console
-            </a>
-          </p>
-        </div>
-      </div>
-    );
-  }
-
   return (
     <div className="app">
       <div className="container">
@@ -53,22 +26,9 @@ function App() {
         <div className="demo-section">
           <h2>Try it out</h2>
           <PlaceAutocomplete
-            apiKey={apiKey}
             onPlaceSelect={handlePlaceSelect}
             onError={handleError}
             placeholder="Search for a place..."
-            debounceMs={300}
-            minChars={3}
-            options={{
-              types: ["geocode"],
-              fields: [
-                "id",
-                "displayName",
-                "formattedAddress",
-                "location",
-                "addressComponents",
-              ],
-            }}
           />
         </div>
 

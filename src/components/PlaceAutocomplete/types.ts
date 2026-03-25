@@ -35,7 +35,6 @@ export interface AutocompleteOptions {
 }
 
 export interface PlaceAutocompleteProps {
-  apiKey: string;
   onPlaceSelect?: (place: PlaceDetails) => void;
   onError?: (error: Error) => void;
   placeholder?: string;

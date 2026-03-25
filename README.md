@@ -183,12 +183,14 @@ Para usar este componente en otro proyecto, copia estos archivos:
 ### Warnings de Deprecación
 
 Es posible que veas warnings en la consola sobre APIs deprecadas:
+
 - `AutocompleteService` → Se recomienda migrar a `AutocompleteSuggestion`
 - `PlacesService` → Se recomienda migrar a `Place`
 
 **Estos warnings NO afectan la funcionalidad actual.** Las APIs actuales seguirán funcionando con soporte completo hasta al menos 12 meses después de marzo 2025.
 
 Para más información sobre la migración futura:
+
 - [Guía de migración de Places API](https://developers.google.com/maps/documentation/javascript/places-migration-overview)
 - [Documentación de Places API (nueva)](https://developers.google.com/maps/documentation/javascript/place-autocomplete)
 

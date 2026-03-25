@@ -1,45 +1,54 @@
-import { useState } from 'react'
-import { PlaceAutocomplete } from './components/PlaceAutocomplete'
-import type { PlaceDetails } from './components/PlaceAutocomplete'
-import './App.css'
+import { useState } from "react";
+import { PlaceAutocomplete } from "./components/PlaceAutocomplete";
+import type { PlaceDetails } from "./components/PlaceAutocomplete";
+import "./App.css";
 
 function App() {
-  const [selectedPlace, setSelectedPlace] = useState<PlaceDetails | null>(null)
+  const [selectedPlace, setSelectedPlace] = useState<PlaceDetails | null>(null);
 
   const handlePlaceSelect = (place: PlaceDetails) => {
-    setSelectedPlace(place)
-    console.log('Selected place:', place)
-  }
+    setSelectedPlace(place);
+    console.log("Selected place:", place);
+  };
 
   const handleError = (error: Error) => {
-    console.error('Error:', error)
-  }
+    console.error("Error:", error);
+  };
 
-  const apiKey = import.meta.env.VITE_GOOGLE_MAPS_API_KEY
+  const apiKey = import.meta.env.VITE_GOOGLE_MAPS_API_KEY;
 
   if (!apiKey) {
     return (
       <div className="app">
         <div className="container">
           <h1>⚠️ API Key Required</h1>
-          <p>Please create a <code>.env</code> file with your Google Maps API key:</p>
+          <p>
+            Please create a <code>.env</code> file with your Google Maps API
+            key:
+          </p>
           <pre>VITE_GOOGLE_MAPS_API_KEY=your_api_key_here</pre>
           <p>
-            Get your API key from{' '}
-            <a href="https://console.cloud.google.com/google/maps-apis" target="_blank" rel="noopener noreferrer">
+            Get your API key from
+            <a
+              href="https://console.cloud.google.com/google/maps-apis"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
               Google Cloud Console
             </a>
           </p>
         </div>
       </div>
-    )
+    );
   }
 
   return (
     <div className="app">
       <div className="container">
         <h1>🗺️ Google Maps Place Autocomplete</h1>
-        <p className="subtitle">Clean and reusable React component with TypeScript</p>
+        <p className="subtitle">
+          Clean and reusable React component with TypeScript
+        </p>
 
         <div className="demo-section">
           <h2>Try it out</h2>
@@ -50,6 +59,10 @@ function App() {
             placeholder="Search for a place..."
             debounceMs={300}
             minChars={3}
+            options={{
+              types: ["address"],
+              fields: ["address_components", "formatted_address"],
+            }}
           />
         </div>
 
@@ -65,7 +78,9 @@ function App() {
               </div>
               {selectedPlace.geometry && (
                 <div className="result-item">
-                  <strong>Coordinates:</strong> {selectedPlace.geometry.location.lat.toFixed(6)}, {selectedPlace.geometry.location.lng.toFixed(6)}
+                  <strong>Coordinates:</strong>{" "}
+                  {selectedPlace.geometry.location.lat.toFixed(6)},{" "}
+                  {selectedPlace.geometry.location.lng.toFixed(6)}
                 </div>
               )}
               {selectedPlace.formattedPhoneNumber && (
@@ -75,15 +90,20 @@ function App() {
               )}
               {selectedPlace.website && (
                 <div className="result-item">
-                  <strong>Website:</strong>{' '}
-                  <a href={selectedPlace.website} target="_blank" rel="noopener noreferrer">
+                  <strong>Website:</strong>{" "}
+                  <a
+                    href={selectedPlace.website}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
                     {selectedPlace.website}
                   </a>
                 </div>
               )}
               {selectedPlace.rating && (
                 <div className="result-item">
-                  <strong>Rating:</strong> ⭐ {selectedPlace.rating} ({selectedPlace.userRatingsTotal} reviews)
+                  <strong>Rating:</strong> ⭐ {selectedPlace.rating} (
+                  {selectedPlace.userRatingsTotal} reviews)
                 </div>
               )}
             </div>
@@ -103,7 +123,7 @@ function App() {
         </div>
       </div>
     </div>
-  )
+  );
 }
 
-export default App
+export default App;

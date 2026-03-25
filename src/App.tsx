@@ -60,8 +60,14 @@ function App() {
             debounceMs={300}
             minChars={3}
             options={{
-              types: ["address"],
-              fields: ["address_components", "formatted_address"],
+              types: ["geocode"],
+              fields: [
+                "id",
+                "displayName",
+                "formattedAddress",
+                "location",
+                "addressComponents",
+              ],
             }}
           />
         </div>

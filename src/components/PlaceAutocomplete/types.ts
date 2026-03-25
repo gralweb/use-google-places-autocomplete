@@ -16,13 +16,13 @@ export interface PlaceDetails {
       lng: number;
     };
   };
-  addressComponents?: google.maps.GeocoderAddressComponent[];
+  addressComponents?: google.maps.places.AddressComponent[];
   types?: string[];
-  formattedPhoneNumber?: string;
-  internationalPhoneNumber?: string;
-  website?: string;
-  rating?: number;
-  userRatingsTotal?: number;
+  formattedPhoneNumber?: string | null;
+  internationalPhoneNumber?: string | null;
+  website?: string | null;
+  rating?: number | null;
+  userRatingsTotal?: number | null;
 }
 
 export interface AutocompleteOptions {

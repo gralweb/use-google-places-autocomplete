@@ -53,6 +53,8 @@ src/components/PlaceAutocomplete/
 
 ## 🔧 Uso Básico
 
+### Opción 1: Componente completo (más simple)
+
 ```tsx
 import { PlaceAutocomplete } from './components/PlaceAutocomplete'
 import type { PlaceDetails } from './components/PlaceAutocomplete'
@@ -72,6 +74,59 @@ function App() {
 }
 ```
 
+### Opción 2: Hook headless (máxima flexibilidad)
+
+Perfecto para usar con tus propios componentes de input personalizados:
+
+```tsx
+import { usePlacesAutocomplete } from './components/PlaceAutocomplete/hooks'
+import type { PlaceDetails } from './components/PlaceAutocomplete'
+
+function CustomAutocomplete() {
+  const { inputProps, suggestions, isLoaded } = usePlacesAutocomplete({
+    apiKey: "YOUR_API_KEY",
+    onPlaceSelect: (place: PlaceDetails) => {
+      console.log('Lugar seleccionado:', place)
+    },
+  })
+
+  if (!isLoaded) return <div>Loading...</div>
+
+  return (
+    <div>
+      {/* Usa tu propio input personalizado */}
+      <input 
+        {...inputProps} 
+        placeholder="Buscar dirección..."
+        className="my-custom-input"
+      />
+      {suggestions}
+    </div>
+  )
+}
+```
+
+### Opción 3: Con componentes de UI libraries (shadcn, MUI, etc.)
+
+```tsx
+import { usePlacesAutocomplete } from './components/PlaceAutocomplete/hooks'
+import { Input } from '@/components/ui/input' // shadcn/ui
+
+function ShadcnAutocomplete() {
+  const { inputProps, suggestions } = usePlacesAutocomplete({
+    apiKey: "YOUR_API_KEY",
+    onPlaceSelect: (place) => console.log(place),
+  })
+
+  return (
+    <div className="relative">
+      <Input {...inputProps} placeholder="Buscar lugar..." />
+      {suggestions}
+    </div>
+  )
+}
+```
+
 ## ⚙️ Props del Componente
 
 | Prop | Tipo | Requerido | Default | Descripción |
@@ -87,7 +142,81 @@ function App() {
 | `debounceMs` | `number` | ❌ | `300` | Tiempo de debounce en ms |
 | `minChars` | `number` | ❌ | `3` | Caracteres mínimos para buscar |
 
-## 🎨 Opciones Avanzadas
+## � API del Hook `usePlacesAutocomplete`
+
+### Parámetros
+
+```typescript
+interface UsePlacesAutocompleteOptions {
+  apiKey: string
+  onPlaceSelect?: (place: PlaceDetails) => void
+  onError?: (error: Error) => void
+  options?: AutocompleteOptions
+  debounceMs?: number  // Default: 300
+  minChars?: number    // Default: 3
+}
+```
+
+### Retorno
+
+```typescript
+interface UsePlacesAutocompleteReturn {
+  // Props para aplicar directamente al input
+  inputProps: {
+    ref: React.RefObject<HTMLInputElement>
+    value: string
+    onChange: (e: React.ChangeEvent<HTMLInputElement>) => void
+    onKeyDown: (e: React.KeyboardEvent<HTMLInputElement>) => void
+    autoComplete: string
+  }
+  
+  // Componente de sugerencias (renderiza automáticamente)
+  suggestions: React.ReactNode | null
+  
+  // Estado de carga
+  isLoaded: boolean
+  loadError: Error | null
+  
+  // Métodos de control manual
+  clearSuggestions: () => void
+  setValue: (value: string) => void
+}
+```
+
+### Ejemplo de uso con control manual
+
+```tsx
+function AdvancedAutocomplete() {
+  const { 
+    inputProps, 
+    suggestions, 
+    clearSuggestions, 
+    setValue 
+  } = usePlacesAutocomplete({
+    apiKey: "YOUR_API_KEY",
+    onPlaceSelect: (place) => {
+      console.log('Selected:', place)
+      // Limpiar después de seleccionar
+      setTimeout(() => clearSuggestions(), 100)
+    },
+  })
+
+  const handleReset = () => {
+    setValue('')
+    clearSuggestions()
+  }
+
+  return (
+    <div>
+      <input {...inputProps} />
+      <button onClick={handleReset}>Limpiar</button>
+      {suggestions}
+    </div>
+  )
+}
+```
+
+## �🎨 Opciones Avanzadas
 
 ### Restringir por país
 

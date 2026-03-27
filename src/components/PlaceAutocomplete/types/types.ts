@@ -36,12 +36,34 @@ export interface AutocompleteOptions {
 
 export interface PlaceAutocompleteProps {
   onPlaceSelect?: (place: PlaceDetails) => void;
-  onError?: (error: Error) => void;
   placeholder?: string;
   className?: string;
   inputClassName?: string;
   listClassName?: string;
   options?: AutocompleteOptions;
+}
+
+export interface UsePlacesAutocompleteOptions {
+  apiKey: string;
+  onPlaceSelect?: (place: PlaceDetails) => void;
+  options?: AutocompleteOptions;
   debounceMs?: number;
   minChars?: number;
+  listClassName?: string;
+}
+
+export interface UsePlacesAutocompleteReturn {
+  inputProps: {
+    ref: React.RefObject<HTMLInputElement>;
+    value: string;
+    onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
+    onKeyDown: (e: React.KeyboardEvent<HTMLInputElement>) => void;
+    autoComplete: string;
+  };
+  containerRef: React.RefObject<HTMLDivElement | null>;
+  suggestions: React.ReactNode | null;
+  isLoaded: boolean;
+  loadError: Error | null;
+  clearSuggestions: () => void;
+  setValue: (value: string) => void;
 }

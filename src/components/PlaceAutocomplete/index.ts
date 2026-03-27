@@ -1,6 +1,6 @@
 export { PlaceAutocomplete } from "./PlaceAutocomplete";
-export { useGoogleMapsScript } from "./useGoogleMapsScript";
-export { usePlacesAutocomplete } from "./usePlacesAutocomplete";
+export { useGoogleMapsScript } from "./hooks/useGoogleMapsScript";
+export { usePlacesAutocomplete } from "./hooks/usePlacesAutocomplete";
 export type {
   PlaceAutocompleteProps,
   PlaceResult,
@@ -10,4 +10,4 @@ export type {
 export type {
   UsePlacesAutocompleteOptions,
   UsePlacesAutocompleteReturn,
-} from "./usePlacesAutocomplete";
+} from "./hooks";

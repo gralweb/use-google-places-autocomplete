@@ -11,10 +11,6 @@ function App() {
     console.log("Selected place:", place);
   };
 
-  const handleError = (error: Error) => {
-    console.error("Error:", error);
-  };
-
   return (
     <div className="app">
       <div className="container">
@@ -27,7 +23,6 @@ function App() {
           <h2>Try it out</h2>
           <PlaceAutocomplete
             onPlaceSelect={handlePlaceSelect}
-            onError={handleError}
             placeholder="Search for a place..."
           />
         </div>

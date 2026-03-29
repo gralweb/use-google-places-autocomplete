@@ -72,7 +72,7 @@ const loadGoogleMapsScript = (apiKey: string, libraries: string[]) => {
 
 export const useGoogleMapsScript = ({
   apiKey,
-  libraries = ["places"],
+  libraries = ["places", "marker"],
 }: UseGoogleMapsScriptOptions): UseGoogleMapsScriptReturn => {
   const [isLoaded, setIsLoaded] = useState(
     isLoadedGlobal || !!window.google?.maps,

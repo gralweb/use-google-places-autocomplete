@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { PlaceAutocomplete } from "./components/PlaceAutocomplete";
-import type { PlaceDetails } from "./components/PlaceAutocomplete";
 import "./App.css";
+import type { PlaceDetails } from "./types";
 
 function App() {
   const [selectedPlace, setSelectedPlace] = useState<PlaceDetails | null>(null);

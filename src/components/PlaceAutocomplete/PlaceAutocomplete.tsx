@@ -1,5 +1,5 @@
-import { usePlacesAutocomplete } from "./hooks";
-import type { PlaceAutocompleteProps } from "./types";
+import { usePlacesAutocomplete } from "../../hooks";
+import type { PlaceAutocompleteProps } from "../../types";
 import "./PlaceAutocomplete.css";
 
 export const PlaceAutocomplete = ({
@@ -21,13 +21,20 @@ export const PlaceAutocomplete = ({
 }: PlaceAutocompleteProps) => {
   const apiKey = import.meta.env.VITE_GOOGLE_MAPS_API_KEY;
 
-  const { inputProps, containerRef, suggestions, isLoaded, loadError } =
-    usePlacesAutocomplete({
-      apiKey,
-      onPlaceSelect,
-      options,
-      listClassName,
-    });
+  const { 
+    inputProps, 
+    containerRef, 
+    predictions, 
+    isOpen,
+    selectedIndex,
+    handleSelectPlace,
+    isLoaded, 
+    loadError 
+  } = usePlacesAutocomplete({
+    apiKey,
+    onPlaceSelect,
+    options,
+  });
 
   if (!isLoaded) {
     return (
@@ -48,7 +55,28 @@ export const PlaceAutocomplete = ({
         className={`place-autocomplete-input ${inputClassName}`}
       />
 
-      {suggestions}
+      {isOpen && predictions.length > 0 && (
+        <ul className={`place-autocomplete-list ${listClassName}`}>
+          {predictions.map((prediction, index) => (
+            <li
+              key={prediction.placeId}
+              className={`place-autocomplete-item ${
+                index === selectedIndex ? "place-autocomplete-item-selected" : ""
+              }`}
+              onClick={() => handleSelectPlace(prediction)}
+            >
+              <div className="place-autocomplete-item-main">
+                {prediction.mainText}
+              </div>
+              {prediction.secondaryText && (
+                <div className="place-autocomplete-item-secondary">
+                  {prediction.secondaryText}
+                </div>
+              )}
+            </li>
+          ))}
+        </ul>
+      )}
     </div>
   );
 };

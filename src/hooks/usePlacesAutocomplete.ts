@@ -10,17 +10,17 @@ import { getPlaceDetails, getPredictions } from "../helpers";
 /**
  * Headless React hook for Google Places Autocomplete.
  * Provides complete control over the input element and UI.
- * 
+ *
  * @param options - Configuration options for the autocomplete
  * @returns Object containing input props, predictions, and control methods
- * 
+ *
  * @example
  * ```tsx
  * const { inputProps, containerRef, predictions, isOpen } = usePlacesAutocomplete({
  *   apiKey: 'YOUR_API_KEY',
  *   onPlaceSelect: (place) => console.log(place),
  * })
- * 
+ *
  * return (
  *   <div ref={containerRef}>
  *     <input {...inputProps} placeholder="Search..." />
@@ -70,8 +70,6 @@ export const usePlacesAutocomplete = ({
           sessionToken: sessionToken.current,
           options,
         });
-
-        console.log("predictions", predictions);
 
         setPredictions(predictions);
         setIsOpen(predictions.length > 0);

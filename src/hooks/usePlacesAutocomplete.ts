@@ -6,15 +6,42 @@ import type {
   UsePlacesAutocompleteReturn,
 } from "../types";
 import { getPlaceDetails, getPredictions } from "../helpers";
-import { Suggestions } from "../Suggestions";
 
+/**
+ * Headless React hook for Google Places Autocomplete.
+ * Provides complete control over the input element and UI.
+ * 
+ * @param options - Configuration options for the autocomplete
+ * @returns Object containing input props, predictions, and control methods
+ * 
+ * @example
+ * ```tsx
+ * const { inputProps, containerRef, predictions, isOpen } = usePlacesAutocomplete({
+ *   apiKey: 'YOUR_API_KEY',
+ *   onPlaceSelect: (place) => console.log(place),
+ * })
+ * 
+ * return (
+ *   <div ref={containerRef}>
+ *     <input {...inputProps} placeholder="Search..." />
+ *     {isOpen && predictions.length > 0 && (
+ *       <ul>
+ *         {predictions.map((prediction) => (
+ *           <li key={prediction.placeId}>{prediction.description}</li>
+ *         ))}
+ *       </ul>
+ *     )}
+ *   </div>
+ * )
+ * ```
+ */
 export const usePlacesAutocomplete = ({
   apiKey,
   onPlaceSelect,
+  onError,
   options = {},
   debounceMs = 300,
   minChars = 3,
-  listClassName = "",
 }: UsePlacesAutocompleteOptions): UsePlacesAutocompleteReturn => {
   const { isLoaded, loadError } = useGoogleMapsScript({ apiKey });
 
@@ -52,10 +79,14 @@ export const usePlacesAutocomplete = ({
         setIsOpen(false);
         setPredictions([]);
 
-        console.error("Error fetching predictions:", error);
+        const err = error instanceof Error ? error : new Error(String(error));
+        console.error("Error fetching predictions:", err);
+        if (onError) {
+          onError(err);
+        }
       }
     },
-    [minChars, options],
+    [minChars, options, onError],
   );
 
   const fetchPlaceDetails = useCallback(
@@ -67,10 +98,14 @@ export const usePlacesAutocomplete = ({
           onPlaceSelect(placeDetails);
         }
       } catch (error) {
-        console.error("Error fetching place details:", error);
+        const err = error instanceof Error ? error : new Error(String(error));
+        console.error("Error fetching place details:", err);
+        if (onError) {
+          onError(err);
+        }
       }
     },
-    [onPlaceSelect, options],
+    [onPlaceSelect, options, onError],
   );
 
   const handleSelectPlace = useCallback(
@@ -182,14 +217,10 @@ export const usePlacesAutocomplete = ({
       autoComplete: "off",
     },
     containerRef,
-    suggestions: isOpen
-      ? Suggestions({
-          listClassName,
-          predictions,
-          onSelectPlace: handleSelectPlace,
-          selected: { index: selectedIndex, setIndex: setSelectedIndex },
-        })
-      : null,
+    predictions,
+    isOpen,
+    selectedIndex,
+    handleSelectPlace,
     isLoaded,
     loadError,
     clearSuggestions,

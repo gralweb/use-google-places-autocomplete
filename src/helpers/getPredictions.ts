@@ -5,6 +5,13 @@ interface Props {
   options: AutocompleteOptions;
 }
 
+/**
+ * Fetches place predictions from Google Places API
+ * 
+ * @param input - Search query string
+ * @param config - Configuration including session token and options
+ * @returns Array of place predictions
+ */
 export const getPredictions = async (
   input: string,
   { sessionToken, options }: Props,

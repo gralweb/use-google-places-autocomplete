@@ -46,10 +46,10 @@ export interface PlaceAutocompleteProps {
 export interface UsePlacesAutocompleteOptions {
   apiKey: string;
   onPlaceSelect?: (place: PlaceDetails) => void;
+  onError?: (error: Error) => void;
   options?: AutocompleteOptions;
   debounceMs?: number;
   minChars?: number;
-  listClassName?: string;
 }
 
 export interface UsePlacesAutocompleteReturn {
@@ -61,7 +61,10 @@ export interface UsePlacesAutocompleteReturn {
     autoComplete: string;
   };
   containerRef: React.RefObject<HTMLDivElement | null>;
-  suggestions: React.ReactNode | null;
+  predictions: PlaceResult[];
+  isOpen: boolean;
+  selectedIndex: number;
+  handleSelectPlace: (prediction: PlaceResult) => void;
   isLoaded: boolean;
   loadError: Error | null;
   clearSuggestions: () => void;

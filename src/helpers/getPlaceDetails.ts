@@ -1,5 +1,12 @@
 import type { AutocompleteOptions, PlaceDetails } from "../types";
 
+/**
+ * Fetches detailed information about a place from Google Places API
+ * 
+ * @param placeId - The unique identifier for the place
+ * @param options - Configuration options including which fields to fetch
+ * @returns Detailed place information or null if not found
+ */
 export const getPlaceDetails = async (
   placeId: string,
   options: AutocompleteOptions,

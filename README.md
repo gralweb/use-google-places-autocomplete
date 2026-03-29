@@ -1,167 +1,107 @@
-# 🗺️ Google Maps Place Autocomplete
+# use-google-places-autocomplete
 
-Implementación limpia y reutilizable de Google Maps Place Autocomplete con React + TypeScript.
+> Headless React hook for Google Places Autocomplete. Bring your own UI.
 
-## ✨ Características
+[![npm version](https://badge.fury.io/js/%40gralweb%2Fuse-google-places-autocomplete.svg)](https://www.npmjs.com/package/@gralweb/use-google-places-autocomplete)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
-- ✅ **Arquitectura modular**: Componente y hook reutilizables
-- ✅ **TypeScript completo**: Tipos seguros y autocompletado
-- ✅ **Debouncing**: Optimización de búsquedas
-- ✅ **Navegación por teclado**: Flechas, Enter, Escape
-- ✅ **Estilos personalizables**: CSS modular
-- ✅ **Fácil de extraer**: Solo 5 archivos necesarios
+## Why Headless?
 
-## 🚀 Inicio Rápido
+This package provides **only the logic** for Google Places Autocomplete, giving you complete freedom to build your own UI:
 
-### 1. Instalar dependencias
+- ✅ **No CSS to override** - Use your own styles
+- ✅ **Works with any UI library** - shadcn, MUI, Chakra, Tailwind, etc.
+- ✅ **Smaller bundle size** - Only the hook logic
+- ✅ **Full TypeScript support** - Complete type safety
+- ✅ **Modern Google Places API** - Uses latest API features
 
-```bash
-npm install
-```
-
-### 2. Configurar API Key
-
-Crea un archivo `.env` en la raíz del proyecto:
-
-```env
-VITE_GOOGLE_MAPS_API_KEY=tu_api_key_aqui
-```
-
-**Obtener API Key:**
-
-1. Ve a [Google Cloud Console](https://console.cloud.google.com/google/maps-apis)
-2. Crea un proyecto o selecciona uno existente
-3. Habilita **Places API**
-4. Crea credenciales (API Key)
-
-### 3. Ejecutar el proyecto
+## Installation
 
 ```bash
-npm run dev
+npm install @gralweb/use-google-places-autocomplete
+# or
+yarn add @gralweb/use-google-places-autocomplete
+# or
+pnpm add @gralweb/use-google-places-autocomplete
 ```
 
-## 📦 Estructura del Componente
-
-```txt
-src/components/PlaceAutocomplete/
-├── PlaceAutocomplete.tsx      # Componente principal
-├── PlaceAutocomplete.css      # Estilos
-├── useGoogleMapsScript.ts     # Hook para cargar el script
-├── types.ts                   # Tipos TypeScript
-└── index.ts                   # Exports
-```
-
-## 🔧 Uso Básico
-
-### Opción 1: Componente completo (más simple)
+## Quick Start
 
 ```tsx
-import { PlaceAutocomplete } from './components/PlaceAutocomplete'
-import type { PlaceDetails } from './components/PlaceAutocomplete'
+import { usePlacesAutocomplete } from '@gralweb/use-google-places-autocomplete'
 
-function App() {
-  const handlePlaceSelect = (place: PlaceDetails) => {
-    console.log('Lugar seleccionado:', place)
-  }
-
-  return (
-    <PlaceAutocomplete
-      apiKey="YOUR_API_KEY"
-      onPlaceSelect={handlePlaceSelect}
-      placeholder="Buscar un lugar..."
-    />
-  )
-}
-```
-
-### Opción 2: Hook headless (máxima flexibilidad)
-
-Perfecto para usar con tus propios componentes de input personalizados:
-
-```tsx
-import { usePlacesAutocomplete } from './components/PlaceAutocomplete/hooks'
-import type { PlaceDetails } from './components/PlaceAutocomplete'
-
-function CustomAutocomplete() {
-  const { inputProps, suggestions, isLoaded } = usePlacesAutocomplete({
-    apiKey: "YOUR_API_KEY",
-    onPlaceSelect: (place: PlaceDetails) => {
-      console.log('Lugar seleccionado:', place)
+function MyAutocomplete() {
+  const { 
+    inputProps, 
+    containerRef, 
+    predictions, 
+    isOpen, 
+    handleSelectPlace,
+    isLoaded 
+  } = usePlacesAutocomplete({
+    apiKey: 'YOUR_GOOGLE_MAPS_API_KEY',
+    onPlaceSelect: (place) => {
+      console.log('Selected place:', place)
     },
   })
 
   if (!isLoaded) return <div>Loading...</div>
 
   return (
-    <div>
-      {/* Usa tu propio input personalizado */}
-      <input 
-        {...inputProps} 
-        placeholder="Buscar dirección..."
-        className="my-custom-input"
-      />
-      {suggestions}
+    <div ref={containerRef}>
+      <input {...inputProps} placeholder="Search places..." />
+      {isOpen && predictions.length > 0 && (
+        <ul>
+          {predictions.map((prediction) => (
+            <li 
+              key={prediction.placeId}
+              onClick={() => handleSelectPlace(prediction)}
+            >
+              {prediction.description}
+            </li>
+          ))}
+        </ul>
+      )}
     </div>
   )
 }
 ```
 
-### Opción 3: Con componentes de UI libraries (shadcn, MUI, etc.)
+## API Reference
 
-```tsx
-import { usePlacesAutocomplete } from './components/PlaceAutocomplete/hooks'
-import { Input } from '@/components/ui/input' // shadcn/ui
+### `usePlacesAutocomplete(options)`
 
-function ShadcnAutocomplete() {
-  const { inputProps, suggestions } = usePlacesAutocomplete({
-    apiKey: "YOUR_API_KEY",
-    onPlaceSelect: (place) => console.log(place),
-  })
+#### Options
 
-  return (
-    <div className="relative">
-      <Input {...inputProps} placeholder="Buscar lugar..." />
-      {suggestions}
-    </div>
-  )
-}
-```
-
-## ⚙️ Props del Componente
-
-| Prop | Tipo | Requerido | Default | Descripción |
-| ---- | ---- | --------- | ------- | ----------- |
+| Option | Type | Required | Default | Description |
+| ------ | ---- | -------- | ------- | ----------- |
 | `apiKey` | `string` | ✅ | - | Google Maps API Key |
-| `onPlaceSelect` | `(place: PlaceDetails) => void` | ❌ | - | Callback cuando se selecciona un lugar |
-| `onError` | `(error: Error) => void` | ❌ | - | Callback para errores |
-| `placeholder` | `string` | ❌ | `"Search for a place..."` | Placeholder del input |
-| `className` | `string` | ❌ | `""` | Clase CSS del contenedor |
-| `inputClassName` | `string` | ❌ | `""` | Clase CSS del input |
-| `listClassName` | `string` | ❌ | `""` | Clase CSS de la lista |
-| `options` | `AutocompleteOptions` | ❌ | `{}` | Opciones de Google Maps |
-| `debounceMs` | `number` | ❌ | `300` | Tiempo de debounce en ms |
-| `minChars` | `number` | ❌ | `3` | Caracteres mínimos para buscar |
+| `onPlaceSelect` | `(place: PlaceDetails) => void` | ❌ | - | Callback when a place is selected |
+| `onError` | `(error: Error) => void` | ❌ | - | Error handler callback |
+| `options` | `AutocompleteOptions` | ❌ | See below | Google Places API options |
+| `debounceMs` | `number` | ❌ | `300` | Debounce delay in milliseconds |
+| `minChars` | `number` | ❌ | `3` | Minimum characters to trigger search |
 
-## � API del Hook `usePlacesAutocomplete`
-
-### Parámetros
+**Default `options`:**
 
 ```typescript
-interface UsePlacesAutocompleteOptions {
-  apiKey: string
-  onPlaceSelect?: (place: PlaceDetails) => void
-  onError?: (error: Error) => void
-  options?: AutocompleteOptions
-  debounceMs?: number  // Default: 300
-  minChars?: number    // Default: 3
+{
+  types: ['geocode'],
+  fields: [
+    'id',
+    'displayName',
+    'formattedAddress',
+    'location',
+    'addressComponents',
+  ],
 }
 ```
 
-### Retorno
+#### Returns
 
 ```typescript
-interface UsePlacesAutocompleteReturn {
-  // Props para aplicar directamente al input
+{
+  // Props to spread on your input element
   inputProps: {
     ref: React.RefObject<HTMLInputElement>
     value: string
@@ -170,163 +110,351 @@ interface UsePlacesAutocompleteReturn {
     autoComplete: string
   }
   
-  // Componente de sugerencias (renderiza automáticamente)
-  suggestions: React.ReactNode | null
+  // Ref for the container (handles click-outside)
+  containerRef: React.RefObject<HTMLDivElement | null>
   
-  // Estado de carga
+  // Predictions array
+  predictions: PlaceResult[]
+  
+  // UI state
+  isOpen: boolean
+  selectedIndex: number
+  
+  // Selection handler
+  handleSelectPlace: (prediction: PlaceResult) => void
+  
+  // Loading state
   isLoaded: boolean
   loadError: Error | null
   
-  // Métodos de control manual
+  // Manual control methods
   clearSuggestions: () => void
   setValue: (value: string) => void
 }
 ```
 
-### Ejemplo de uso con control manual
+## Examples
+
+### With Custom Styling
 
 ```tsx
-function AdvancedAutocomplete() {
+import { usePlacesAutocomplete } from '@gralweb/use-google-places-autocomplete'
+
+function StyledAutocomplete() {
   const { 
     inputProps, 
-    suggestions, 
-    clearSuggestions, 
-    setValue 
+    containerRef, 
+    predictions, 
+    isOpen,
+    selectedIndex,
+    handleSelectPlace 
   } = usePlacesAutocomplete({
-    apiKey: "YOUR_API_KEY",
+    apiKey: process.env.VITE_GOOGLE_MAPS_API_KEY,
     onPlaceSelect: (place) => {
-      console.log('Selected:', place)
-      // Limpiar después de seleccionar
-      setTimeout(() => clearSuggestions(), 100)
+      console.log('Selected:', place.formattedAddress)
     },
   })
 
-  const handleReset = () => {
-    setValue('')
-    clearSuggestions()
-  }
-
   return (
-    <div>
-      <input {...inputProps} />
-      <button onClick={handleReset}>Limpiar</button>
-      {suggestions}
+    <div ref={containerRef} className="relative w-full max-w-md">
+      <input 
+        {...inputProps} 
+        className="w-full px-4 py-2 border rounded-lg"
+        placeholder="Search for a place..."
+      />
+      {isOpen && predictions.length > 0 && (
+        <ul className="absolute w-full mt-1 bg-white border rounded-lg shadow-lg">
+          {predictions.map((prediction, index) => (
+            <li
+              key={prediction.placeId}
+              onClick={() => handleSelectPlace(prediction)}
+              className={`px-4 py-2 cursor-pointer hover:bg-gray-100 ${
+                index === selectedIndex ? 'bg-gray-100' : ''
+              }`}
+            >
+              <div className="font-medium">{prediction.mainText}</div>
+              <div className="text-sm text-gray-500">{prediction.secondaryText}</div>
+            </li>
+          ))}
+        </ul>
+      )}
     </div>
   )
 }
 ```
 
-## �🎨 Opciones Avanzadas
-
-### Restringir por país
+### With shadcn/ui
 
 ```tsx
-<PlaceAutocomplete
-  apiKey="YOUR_API_KEY"
-  options={{
-    componentRestrictions: { country: 'us' }
-  }}
-/>
-```
+import { usePlacesAutocomplete } from '@gralweb/use-google-places-autocomplete'
+import { Input } from '@/components/ui/input'
+import { Card } from '@/components/ui/card'
 
-### Filtrar por tipo de lugar
+function ShadcnExample() {
+  const { 
+    inputProps, 
+    containerRef, 
+    predictions, 
+    isOpen,
+    handleSelectPlace 
+  } = usePlacesAutocomplete({
+    apiKey: process.env.VITE_GOOGLE_MAPS_API_KEY,
+    onPlaceSelect: (place) => console.log(place),
+  })
 
-```tsx
-<PlaceAutocomplete
-  apiKey="YOUR_API_KEY"
-  options={{
-    types: ['restaurant', 'cafe']
-  }}
-/>
-```
-
-### Limitar por área geográfica
-
-```tsx
-<PlaceAutocomplete
-  apiKey="YOUR_API_KEY"
-  options={{
-    bounds: {
-      north: 40.7128,
-      south: 40.7000,
-      east: -74.0060,
-      west: -74.0200
-    }
-  }}
-/>
-```
-
-## 📋 Tipos TypeScript
-
-### PlaceDetails
-
-```typescript
-interface PlaceDetails {
-  placeId: string
-  name: string
-  formattedAddress: string
-  geometry?: {
-    location: { lat: number; lng: number }
-  }
-  addressComponents?: google.maps.GeocoderAddressComponent[]
-  types?: string[]
-  formattedPhoneNumber?: string
-  internationalPhoneNumber?: string
-  website?: string
-  rating?: number
-  userRatingsTotal?: number
+  return (
+    <div ref={containerRef} className="relative w-full max-w-md">
+      <Input {...inputProps} placeholder="Search places..." />
+      {isOpen && predictions.length > 0 && (
+        <Card className="absolute w-full mt-1 p-0">
+          {predictions.map((prediction) => (
+            <div
+              key={prediction.placeId}
+              onClick={() => handleSelectPlace(prediction)}
+              className="px-4 py-2 cursor-pointer hover:bg-accent"
+            >
+              {prediction.description}
+            </div>
+          ))}
+        </Card>
+      )}
+    </div>
+  )
 }
 ```
 
-## 🎯 Cómo Extraer a Otro Proyecto
+### With Material-UI
 
-Para usar este componente en otro proyecto, copia estos archivos:
+```tsx
+import { usePlacesAutocomplete } from '@gralweb/use-google-places-autocomplete'
+import TextField from '@mui/material/TextField'
+import List from '@mui/material/List'
+import ListItem from '@mui/material/ListItem'
+import Paper from '@mui/material/Paper'
 
-1. **Carpeta completa**: `src/components/PlaceAutocomplete/`
-2. **Archivo de tipos globales**: `src/global.d.ts`
-3. **Instalar dependencias**:
+function MUIExample() {
+  const { 
+    inputProps, 
+    containerRef, 
+    predictions, 
+    isOpen,
+    handleSelectPlace 
+  } = usePlacesAutocomplete({
+    apiKey: process.env.VITE_GOOGLE_MAPS_API_KEY,
+  })
 
-   ```bash
-   npm install --save-dev @types/google.maps @types/node
-   ```
+  return (
+    <div ref={containerRef}>
+      <TextField
+        {...inputProps}
+        label="Search places"
+        variant="outlined"
+        fullWidth
+      />
+      {isOpen && predictions.length > 0 && (
+        <Paper elevation={3}>
+          <List>
+            {predictions.map((prediction) => (
+              <ListItem
+                key={prediction.placeId}
+                button
+                onClick={() => handleSelectPlace(prediction)}
+              >
+                {prediction.description}
+              </ListItem>
+            ))}
+          </List>
+        </Paper>
+      )}
+    </div>
+  )
+}
+```
 
-4. **Actualizar `tsconfig.json`**:
+### With Manual Control
 
-   ```json
-   {
-     "compilerOptions": {
-       "types": ["@types/google.maps", "node"]
-     }
-   }
-   ```
+```tsx
+import { usePlacesAutocomplete } from '@gralweb/use-google-places-autocomplete'
 
-## 🛠️ Tecnologías
+function AdvancedExample() {
+  const { 
+    inputProps, 
+    containerRef, 
+    predictions,
+    isOpen,
+    handleSelectPlace,
+    clearSuggestions,
+    setValue,
+    isLoaded,
+    loadError
+  } = usePlacesAutocomplete({
+    apiKey: process.env.VITE_GOOGLE_MAPS_API_KEY,
+    onPlaceSelect: (place) => {
+      console.log('Selected:', place)
+      setTimeout(() => clearSuggestions(), 100)
+    },
+    onError: (error) => {
+      console.error('Error:', error)
+    },
+  })
 
-- **React 19** - Framework UI
-- **TypeScript** - Tipado estático
-- **Vite** - Build tool
-- **Google Maps JavaScript API** - Places API
+  const handleClear = () => {
+    setValue('')
+    clearSuggestions()
+  }
 
-## ⚠️ Notas Importantes
+  if (loadError) {
+    return <div>Error: {loadError.message}</div>
+  }
 
-### Warnings de Deprecación
+  if (!isLoaded) {
+    return <div>Loading Google Maps...</div>
+  }
 
-Es posible que veas warnings en la consola sobre APIs deprecadas:
+  return (
+    <div ref={containerRef} className="relative">
+      <div className="flex gap-2">
+        <input {...inputProps} className="flex-1" />
+        <button onClick={handleClear}>Clear</button>
+      </div>
+      {isOpen && predictions.length > 0 && (
+        <ul>
+          {predictions.map((prediction) => (
+            <li 
+              key={prediction.placeId}
+              onClick={() => handleSelectPlace(prediction)}
+            >
+              {prediction.description}
+            </li>
+          ))}
+        </ul>
+      )}
+    </div>
+  )
+}
+```
 
-- `AutocompleteService` → Se recomienda migrar a `AutocompleteSuggestion`
-- `PlacesService` → Se recomienda migrar a `Place`
+### Restrict by Country
 
-**Estos warnings NO afectan la funcionalidad actual.** Las APIs actuales seguirán funcionando con soporte completo hasta al menos 12 meses después de marzo 2025.
+```tsx
+const { inputProps, containerRef, predictions, isOpen } = usePlacesAutocomplete({
+  apiKey: process.env.VITE_GOOGLE_MAPS_API_KEY,
+  options: {
+    componentRestrictions: { country: 'us' },
+  },
+})
+```
 
-Para más información sobre la migración futura:
+### Filter by Type
 
-- [Guía de migración de Places API](https://developers.google.com/maps/documentation/javascript/places-migration-overview)
-- [Documentación de Places API (nueva)](https://developers.google.com/maps/documentation/javascript/place-autocomplete)
+```tsx
+const { inputProps, containerRef, predictions, isOpen } = usePlacesAutocomplete({
+  apiKey: process.env.VITE_GOOGLE_MAPS_API_KEY,
+  options: {
+    types: ['restaurant', 'cafe'],
+  },
+})
+```
 
-## 📝 Licencia
+## TypeScript
 
-MIT
+Full TypeScript support with exported types:
 
-## 🤝 Contribuciones
+```typescript
+import type { 
+  PlaceDetails, 
+  PlaceResult,
+  AutocompleteOptions,
+  UsePlacesAutocompleteOptions,
+  UsePlacesAutocompleteReturn
+} from '@gralweb/use-google-places-autocomplete'
 
-Las contribuciones son bienvenidas. Por favor, abre un issue o pull request.
+const handleSelect = (place: PlaceDetails) => {
+  console.log(place.formattedAddress)
+  console.log(place.geometry?.location.lat)
+  console.log(place.geometry?.location.lng)
+}
+```
+
+## Advanced Usage
+
+### Using Helpers Directly
+
+```typescript
+import { getPredictions, getPlaceDetails } from '@gralweb/use-google-places-autocomplete'
+
+// Get predictions manually
+const predictions = await getPredictions('New York', {
+  sessionToken: myToken,
+  options: { types: ['geocode'] }
+})
+
+// Get place details manually
+const details = await getPlaceDetails('ChIJOwg_06VPwokRYv534QaPC8g', {
+  fields: ['formattedAddress', 'location']
+})
+```
+
+### Using Constants
+
+```typescript
+import { 
+  DEFAULT_AUTOCOMPLETE_OPTIONS,
+  DEFAULT_DEBOUNCE_MS,
+  DEFAULT_MIN_CHARS
+} from '@gralweb/use-google-places-autocomplete'
+
+console.log(DEFAULT_DEBOUNCE_MS) // 300
+console.log(DEFAULT_MIN_CHARS)   // 3
+```
+
+## Getting a Google Maps API Key
+
+1. Go to [Google Cloud Console](https://console.cloud.google.com/google/maps-apis)
+2. Create a project or select an existing one
+3. Enable **Places API (New)**
+4. Create credentials (API Key)
+5. (Optional) Restrict the API key to your domain
+
+## ⚠️ Important Legal Notice
+
+This package is a wrapper around the Google Maps Places API. **Users of this package must:**
+
+1. Have a valid Google Maps API Key
+2. Comply with [Google Maps Platform Terms of Service](https://cloud.google.com/maps-platform/terms)
+3. Follow [Google Maps Platform Usage Limits](https://developers.google.com/maps/documentation/javascript/usage-and-billing)
+4. Display the Google logo and attributions as required by Google's terms
+5. Be responsible for any API usage fees incurred
+
+**This package and its author are not affiliated with, endorsed by, or sponsored by Google LLC.**
+
+## Browser Support
+
+- Chrome (latest)
+- Firefox (latest)
+- Safari (latest)
+- Edge (latest)
+
+## License
+
+MIT License - see [LICENSE](LICENSE) file for details.
+
+### Disclaimer
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+**Users are solely responsible for:**
+
+- Complying with Google Maps Platform Terms of Service
+- Any applicable usage fees from Google
+- Proper implementation and security of API keys
+- Meeting Google's attribution requirements
+
+## Contributing
+
+Contributions are welcome! Please open an issue or pull request.
+
+## Support
+
+- [GitHub Issues](https://github.com/gralweb/use-google-places-autocomplete/issues)
+- [Documentation](https://github.com/gralweb/use-google-places-autocomplete#readme)

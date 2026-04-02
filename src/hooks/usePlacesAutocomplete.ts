@@ -12,18 +12,19 @@ import { getPlaceDetails, getPredictions } from "../helpers";
  * Provides complete control over the input element and UI.
  *
  * @param options - Configuration options for the autocomplete
- * @returns Object containing input props, predictions, and control methods
+ * @returns Object containing getInputProps function, predictions, and control methods
  *
  * @example
+ * // Basic usage (uncontrolled input)
  * ```tsx
- * const { inputProps, containerRef, predictions, isOpen } = usePlacesAutocomplete({
+ * const { getInputProps, containerRef, predictions, isOpen } = usePlacesAutocomplete({
  *   apiKey: 'YOUR_API_KEY',
  *   onPlaceSelect: (place) => console.log(place),
  * })
  *
  * return (
  *   <div ref={containerRef}>
- *     <input {...inputProps} placeholder="Search..." />
+ *     <input {...getInputProps({ placeholder: "Search..." })} />
  *     {isOpen && predictions.length > 0 && (
  *       <ul>
  *         {predictions.map((prediction) => (
@@ -32,6 +33,27 @@ import { getPlaceDetails, getPredictions } from "../helpers";
  *       </ul>
  *     )}
  *   </div>
+ * )
+ * ```
+ *
+ * @example
+ * // Controlled input with forms
+ * ```tsx
+ * const [address, setAddress] = useState("");
+ * const { getInputProps, predictions, isOpen } = usePlacesAutocomplete({
+ *   apiKey: 'YOUR_API_KEY',
+ *   onPlaceSelect: (place) => setAddress(place.formattedAddress),
+ * })
+ *
+ * return (
+ *   <input
+ *     {...getInputProps({
+ *       value: address,
+ *       onChange: (e) => setAddress(e.target.value),
+ *       placeholder: "Enter address...",
+ *       className: "form-input"
+ *     })}
+ *   />
  * )
  * ```
  */
@@ -162,6 +184,37 @@ export const usePlacesAutocomplete = ({
     [isOpen, predictions, selectedIndex, handleSelectPlace],
   );
 
+  const getInputProps = useCallback(
+    (userProps: React.InputHTMLAttributes<HTMLInputElement> = {}) => {
+      const {
+        value: userValue,
+        onChange: userOnChange,
+        onBlur: userOnBlur,
+        onFocus: userOnFocus,
+        ...restUserProps
+      } = userProps;
+
+      return {
+        ref: inputRef,
+        value: userValue ?? inputValue,
+        autoComplete: "off",
+        ...restUserProps,
+        onChange: (e: React.ChangeEvent<HTMLInputElement>) => {
+          handleInputChange(e);
+          userOnChange?.(e);
+        },
+        onFocus: (e: React.FocusEvent<HTMLInputElement>) => {
+          if (predictions.length > 0) {
+            setIsOpen(true);
+          }
+          userOnFocus?.(e);
+        },
+        onKeyDown: handleKeyDown,
+      };
+    },
+    [inputValue, handleInputChange, handleKeyDown, predictions],
+  );
+
   const clearSuggestions = useCallback(() => {
     setIsOpen(false);
     setPredictions([]);
@@ -207,6 +260,7 @@ export const usePlacesAutocomplete = ({
   }, []);
 
   return {
+    getInputProps,
     inputProps: {
       ref: inputRef,
       value: inputValue,

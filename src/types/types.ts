@@ -53,6 +53,12 @@ export interface UsePlacesAutocompleteOptions {
 }
 
 export interface UsePlacesAutocompleteReturn {
+  getInputProps: (
+    userProps?: React.InputHTMLAttributes<HTMLInputElement>,
+  ) => React.InputHTMLAttributes<HTMLInputElement> & {
+    ref: React.RefObject<HTMLInputElement>;
+  };
+  /** @deprecated Use getInputProps() instead for better control over input props */
   inputProps: {
     ref: React.RefObject<HTMLInputElement>;
     value: string;

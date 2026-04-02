@@ -32,7 +32,7 @@ import { usePlacesAutocomplete } from '@gralweb/use-google-places-autocomplete'
 
 function MyAutocomplete() {
   const { 
-    inputProps, 
+    getInputProps,
     containerRef, 
     predictions, 
     isOpen, 
@@ -49,7 +49,7 @@ function MyAutocomplete() {
 
   return (
     <div ref={containerRef}>
-      <input {...inputProps} placeholder="Search places..." />
+      <input {...getInputProps({ placeholder: "Search places..." })} />
       {isOpen && predictions.length > 0 && (
         <ul>
           {predictions.map((prediction) => (
@@ -101,7 +101,11 @@ function MyAutocomplete() {
 
 ```typescript
 {
-  // Props to spread on your input element
+  // Function to get input props with automatic merging (recommended)
+  getInputProps: (userProps?: React.InputHTMLAttributes<HTMLInputElement>) => 
+    React.InputHTMLAttributes<HTMLInputElement> & { ref: React.RefObject<HTMLInputElement> }
+  
+  // Legacy: Props to spread on your input element (deprecated, use getInputProps instead)
   inputProps: {
     ref: React.RefObject<HTMLInputElement>
     value: string
@@ -135,6 +139,104 @@ function MyAutocomplete() {
 
 ## Examples
 
+### Controlled Input (Forms)
+
+**New in v1.1.0**: Use `getInputProps()` for seamless integration with controlled inputs and form libraries.
+
+```tsx
+import { useState } from 'react'
+import { usePlacesAutocomplete } from '@gralweb/use-google-places-autocomplete'
+
+function ControlledExample() {
+  const [address, setAddress] = useState('')
+  
+  const { 
+    getInputProps,
+    containerRef, 
+    predictions, 
+    isOpen,
+    handleSelectPlace 
+  } = usePlacesAutocomplete({
+    apiKey: process.env.VITE_GOOGLE_MAPS_API_KEY,
+    onPlaceSelect: (place) => {
+      setAddress(place.formattedAddress)
+    },
+  })
+
+  return (
+    <div ref={containerRef}>
+      <input 
+        {...getInputProps({
+          value: address,
+          onChange: (e) => setAddress(e.target.value),
+          placeholder: "Enter your address...",
+          className: "form-input"
+        })}
+      />
+      {isOpen && predictions.length > 0 && (
+        <ul className="suggestions">
+          {predictions.map((prediction) => (
+            <li 
+              key={prediction.placeId}
+              onClick={() => handleSelectPlace(prediction)}
+            >
+              <div>{prediction.mainText}</div>
+              <div className="text-sm text-gray-500">{prediction.secondaryText}</div>
+            </li>
+          ))}
+        </ul>
+      )}
+    </div>
+  )
+}
+```
+
+### With React Hook Form
+
+```tsx
+import { useForm } from 'react-hook-form'
+import { usePlacesAutocomplete } from '@gralweb/use-google-places-autocomplete'
+
+function FormExample() {
+  const { register, handleSubmit, setValue, watch } = useForm()
+  const address = watch('address')
+  
+  const { getInputProps, containerRef, predictions, isOpen, handleSelectPlace } = 
+    usePlacesAutocomplete({
+      apiKey: process.env.VITE_GOOGLE_MAPS_API_KEY,
+      onPlaceSelect: (place) => {
+        setValue('address', place.formattedAddress)
+        setValue('lat', place.geometry?.location.lat)
+        setValue('lng', place.geometry?.location.lng)
+      },
+    })
+
+  return (
+    <form onSubmit={handleSubmit(onSubmit)}>
+      <div ref={containerRef}>
+        <input
+          {...getInputProps({
+            ...register('address'),
+            value: address,
+            placeholder: "Address"
+          })}
+        />
+        {isOpen && predictions.length > 0 && (
+          <ul>
+            {predictions.map((prediction) => (
+              <li key={prediction.placeId} onClick={() => handleSelectPlace(prediction)}>
+                {prediction.description}
+              </li>
+            ))}
+          </ul>
+        )}
+      </div>
+      <button type="submit">Submit</button>
+    </form>
+  )
+}
+```
+
 ### With Custom Styling
 
 ```tsx
@@ -142,7 +244,7 @@ import { usePlacesAutocomplete } from '@gralweb/use-google-places-autocomplete'
 
 function StyledAutocomplete() {
   const { 
-    inputProps, 
+    getInputProps,
     containerRef, 
     predictions, 
     isOpen,
@@ -158,9 +260,10 @@ function StyledAutocomplete() {
   return (
     <div ref={containerRef} className="relative w-full max-w-md">
       <input 
-        {...inputProps} 
-        className="w-full px-4 py-2 border rounded-lg"
-        placeholder="Search for a place..."
+        {...getInputProps({
+          className: "w-full px-4 py-2 border rounded-lg",
+          placeholder: "Search for a place..."
+        })}
       />
       {isOpen && predictions.length > 0 && (
         <ul className="absolute w-full mt-1 bg-white border rounded-lg shadow-lg">
@@ -192,7 +295,7 @@ import { Card } from '@/components/ui/card'
 
 function ShadcnExample() {
   const { 
-    inputProps, 
+    getInputProps,
     containerRef, 
     predictions, 
     isOpen,
@@ -204,7 +307,7 @@ function ShadcnExample() {
 
   return (
     <div ref={containerRef} className="relative w-full max-w-md">
-      <Input {...inputProps} placeholder="Search places..." />
+      <Input {...getInputProps({ placeholder: "Search places..." })} />
       {isOpen && predictions.length > 0 && (
         <Card className="absolute w-full mt-1 p-0">
           {predictions.map((prediction) => (
@@ -234,7 +337,7 @@ import Paper from '@mui/material/Paper'
 
 function MUIExample() {
   const { 
-    inputProps, 
+    getInputProps,
     containerRef, 
     predictions, 
     isOpen,
@@ -246,9 +349,10 @@ function MUIExample() {
   return (
     <div ref={containerRef}>
       <TextField
-        {...inputProps}
-        label="Search places"
-        variant="outlined"
+        {...getInputProps({
+          label: "Search places",
+          variant: "outlined"
+        })}
         fullWidth
       />
       {isOpen && predictions.length > 0 && (
@@ -278,7 +382,7 @@ import { usePlacesAutocomplete } from '@gralweb/use-google-places-autocomplete'
 
 function AdvancedExample() {
   const { 
-    inputProps, 
+    getInputProps,
     containerRef, 
     predictions,
     isOpen,
@@ -314,7 +418,7 @@ function AdvancedExample() {
   return (
     <div ref={containerRef} className="relative">
       <div className="flex gap-2">
-        <input {...inputProps} className="flex-1" />
+        <input {...getInputProps({ className: "flex-1" })} />
         <button onClick={handleClear}>Clear</button>
       </div>
       {isOpen && predictions.length > 0 && (
@@ -337,7 +441,7 @@ function AdvancedExample() {
 ### Restrict by Country
 
 ```tsx
-const { inputProps, containerRef, predictions, isOpen } = usePlacesAutocomplete({
+const { getInputProps, containerRef, predictions, isOpen } = usePlacesAutocomplete({
   apiKey: process.env.VITE_GOOGLE_MAPS_API_KEY,
   options: {
     componentRestrictions: { country: 'us' },
@@ -348,7 +452,7 @@ const { inputProps, containerRef, predictions, isOpen } = usePlacesAutocomplete(
 ### Filter by Type
 
 ```tsx
-const { inputProps, containerRef, predictions, isOpen } = usePlacesAutocomplete({
+const { getInputProps, containerRef, predictions, isOpen } = usePlacesAutocomplete({
   apiKey: process.env.VITE_GOOGLE_MAPS_API_KEY,
   options: {
     types: ['restaurant', 'cafe'],

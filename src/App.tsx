@@ -1,5 +1,8 @@
 import { useState } from "react";
-import { PlaceAutocomplete } from "./components/PlaceAutocomplete";
+import {
+  ControlledInputExample,
+  PlaceAutocomplete,
+} from "./components/PlaceAutocomplete";
 import "./App.css";
 import type { PlaceDetails } from "./types";
 
@@ -20,12 +23,14 @@ function App() {
         </p>
 
         <div className="demo-section">
-          <h2>Try it out</h2>
+          <h2>Component Example (PlaceAutocomplete)</h2>
           <PlaceAutocomplete
             onPlaceSelect={handlePlaceSelect}
             placeholder="Search for a place..."
           />
         </div>
+
+        <ControlledInputExample />
 
         {selectedPlace && (
           <div className="result-section">
